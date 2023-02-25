@@ -8,9 +8,10 @@ Created on Sat Feb 25 16:06:00 2023
 import casadi
 import numpy as np
 from rkHandler import discretizeODE
+import matplotlib.pyplot as plt
 
 n_steps = 0
-n_data  = 1000
+n_data  = 200
 n_rooms = 3
 
 def get_linear_ode(A, BT, BH, hH, DE, DH):
@@ -42,8 +43,8 @@ def get_linear_ode(A, BT, BH, hH, DE, DH):
     return ode
 
 opt = casadi.Opti()
-alpha = opt.variable(n_rooms)
-opt.subject_to(alpha >= 0)
+alpha = np.ones((6,))#opt.variable(n_rooms)
+# opt.subject_to(alpha >= 0)
 A = casadi.MX(n_rooms, n_rooms)
 alpha_counter = 0
 for i in range(0,n_rooms):
@@ -54,21 +55,39 @@ for i in range(0,n_rooms):
 
 A -= casadi.diag(casadi.sum2(A))
         
-BT = opt.variable(n_rooms, 2) # 2: outside temperature + ground
+BT = np.ones((n_rooms, 2)) #opt.variable(n_rooms, 2) # 2: outside temperature + ground
 
 A -= casadi.diag(casadi.sum2(BT)) # influence based on the external temperatures
 
-BH = opt.variable(n_rooms, 1) # solar radiation
+BH = np.ones((n_rooms, 1))#opt.variable(n_rooms, 1) # solar radiation
 
-hH = opt.variable(1) # human heat generation in a room
+hH = 1 #opt.variable(1) # human heat generation in a room
 
-DE = casadi.diag(opt.variable(n_rooms, 1)) # electricity heat
-DH = casadi.diag(opt.variable(n_rooms, 1)) # hvac heating+cooling
+DE = casadi.diag(np.ones((n_rooms, 1)))#casadi.diag(opt.variable(n_rooms, 1)) # electricity heat
+DH = casadi.diag(np.zeros((n_rooms, 1)))#casadi.diag(opt.variable(n_rooms, 1)) # hvac heating+cooling
 
 odefun = get_linear_ode(A, BT, BH, hH, DE, DH)
 
 # u_dim = (outside temp + ground temp) + solar radiation + humans per room + electric heat per room + hvac per room
-dt = 600/(n_steps+1)
-discretizeODE(odefun, n_rooms, 2+1+n_rooms+n_rooms+n_rooms, dt ) 
+u_dim = 2+1+n_rooms+n_rooms+n_rooms
+dt = 0.1/(n_steps+1)
+FRK4 = discretizeODE(odefun, n_rooms, u_dim, dt) 
 
+x = opt.variable(n_rooms, n_data)
+# x0 = np.array([[20, 30, 5]]).T
+# u = np.concatenate((np.array([[30], [5], [-10], [1], [0], [0], [2], [0], [0]]), np.zeros( (u_dim-9,1) )), 0)
 
+# for i in range(0, n_data-1):
+#     opt.subject_to( x[:, i+1] == FRK4( i*10, x[:, i], u) )
+
+x0 = np.array([[20, 30, 5]]).T
+u = np.concatenate((np.array([[30], [5], [-10], [1], [0], [0], [2], [0], [0]]), np.zeros( (u_dim-9,1) )), 0)
+
+for i in range(0, n_data):
+    opt.subject_to( x[:, i] == FRK4( i*10, x_data[:, i], u_data[:,i]) )
+
+opt.minimize()
+
+opt.solver('ipopt')
+sol = opt.solve()
+plt.plot(sol.value(x.T))
