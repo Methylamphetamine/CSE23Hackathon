@@ -25,6 +25,22 @@ def discretizeODE(odefun, xdim, udim, dt, method="rk4"):
 
     return casadi.Function('F', [t, x, u], [xplus])
 
+def rk_step(odefun, t, x, u, dt, method="rk4"):
+    butcher = getMethod(method)
+    a = butcher[0:-1, 1:]
+    b = butcher[-1, 1:]
+    c = butcher[0:-1, 0]
+    
+    nStage = len(c)
+    k = casadi.MX(x.shape[0], nStage)
+    
+    for iStage in range(nStage):
+        k[:, iStage] = odefun(t + dt*c[iStage], x + dt * k @ a[iStage,:].reshape(nStage, 1), u)
+        
+    xplus = x + dt * k @ b.reshape(nStage,1)
+
+    return xplus
+
 
 def getMethod(method):
     if method == "rk1" or method == "euler":
