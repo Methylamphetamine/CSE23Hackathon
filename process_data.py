@@ -16,14 +16,14 @@ def process_data(filename):
         return float(new_val)
 
     # Some of the columns don't change, so we can drop them
-    if filename == "bld1.csv":
+    if "bld1.csv" in filename:
         data = data.drop(
             columns=[
                 "LIVING ZONE AIR TERMINAL 1:Zone Air Terminal Outdoor Air Volume Flow Rate [m3/s](TimeStep)",
                 "LIVING ZONE AIR TERMINAL 2:Zone Air Terminal Outdoor Air Volume Flow Rate [m3/s](TimeStep)",
             ]
         )
-    elif filename == "bld2.csv":
+    elif "bld2.csv" in filename:
         data = data.drop(
             columns=[
                 "ZONE A WINDACFAN:Fan Air Mass Flow Rate [kg/s](TimeStep)",
