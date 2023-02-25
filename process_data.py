@@ -21,6 +21,8 @@ def process_data(filename):
             columns=[
                 "LIVING ZONE AIR TERMINAL 1:Zone Air Terminal Outdoor Air Volume Flow Rate [m3/s](TimeStep)",
                 "LIVING ZONE AIR TERMINAL 2:Zone Air Terminal Outdoor Air Volume Flow Rate [m3/s](TimeStep)",
+                "LIVING ZONE:Zone Thermostat Cooling Setpoint Temperature [C](TimeStep)",
+                "LIVING ZONE:Zone Thermostat Heating Setpoint Temperature [C](TimeStep)"
             ]
         )
     elif "bld2.csv" in filename:
@@ -32,6 +34,8 @@ def process_data(filename):
                 "ZONE A BASEBOARD:Baseboard Air Mass Flow Rate [kg/s](TimeStep)",
                 "ZONE B BASEBOARD:Baseboard Air Mass Flow Rate [kg/s](TimeStep)",
                 "ZONE C BASEBOARD:Baseboard Air Mass Flow Rate [kg/s](TimeStep)",
+                "LIVING ZONE:Zone Thermostat Cooling Setpoint Temperature [C](TimeStep)",
+                "LIVING ZONE:Zone Thermostat Heating Setpoint Temperature [C](TimeStep)"
             ]
         )
 
