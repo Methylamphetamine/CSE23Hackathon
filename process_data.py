@@ -5,7 +5,7 @@ import pandas as pd
 # Use this function to process the data
 # use bld1.csv for the first building.
 # use bld2.csv for the second building.
-def process_data(filename):
+def process_data(filename, exclude_settemp = True):
     data = pd.read_csv(filename)
     # Setting the data / time as the index:
     data = data.set_index(data.columns[0])
@@ -21,10 +21,9 @@ def process_data(filename):
             columns=[
                 "LIVING ZONE AIR TERMINAL 1:Zone Air Terminal Outdoor Air Volume Flow Rate [m3/s](TimeStep)",
                 "LIVING ZONE AIR TERMINAL 2:Zone Air Terminal Outdoor Air Volume Flow Rate [m3/s](TimeStep)",
-                "LIVING ZONE:Zone Thermostat Cooling Setpoint Temperature [C](TimeStep)",
-                "LIVING ZONE:Zone Thermostat Heating Setpoint Temperature [C](TimeStep)"
             ]
         )
+
     elif "bld2.csv" in filename:
         data = data.drop(
             columns=[
@@ -34,6 +33,12 @@ def process_data(filename):
                 "ZONE A BASEBOARD:Baseboard Air Mass Flow Rate [kg/s](TimeStep)",
                 "ZONE B BASEBOARD:Baseboard Air Mass Flow Rate [kg/s](TimeStep)",
                 "ZONE C BASEBOARD:Baseboard Air Mass Flow Rate [kg/s](TimeStep)",
+            ]
+        )
+    if exclude_settemp:
+
+        data = data.drop(
+            columns=[
                 "LIVING ZONE:Zone Thermostat Cooling Setpoint Temperature [C](TimeStep)",
                 "LIVING ZONE:Zone Thermostat Heating Setpoint Temperature [C](TimeStep)"
             ]
