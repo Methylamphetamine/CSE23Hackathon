@@ -57,11 +57,18 @@ times = np.arange(0, x_data.shape[1]*600, 600)
 
 odefun = get_linear_ode(A, BT, BH, hH, DE, DH, u_data, times)
 
-t_span = (0, 24*60*60*10)
+t_span = (0, 600)
 x0 = x_data[:, 0]
 rtol = 1e-6
 atol = 1e-8
-sol_sim = solve_ivp(odefun, t_span, x0, t_eval=np.arange(t_span[0], t_span[1], 600), rtol=rtol, atol=atol, method='RK45')
+target_PINN = []
+for i in range(x_data.shape[1]-1):
+    print(i)
+    sol_sim = solve_ivp(odefun, t_span, x_data[:,i], t_eval=np.array([600]), rtol=rtol, atol=atol, method='RK45')
+    target_PINN.append((x_data[:,i+1]-sol_sim.y[:,-1]).reshape((-1,1)))
+
+target_PINN_np = np.concatenate(target_PINN,1)
+np.save("Pinn_target", target_PINN_np)
 
 plt.plot(sol_sim.t, sol_sim.y.T, label="linear")
 plt.plot(np.arange(0,24*60*60*10,600), x_data[:,range(24*6*10)].T, label="real")

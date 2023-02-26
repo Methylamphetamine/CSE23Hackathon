@@ -3,6 +3,7 @@ import numpy as np
 import math
 from functools import partial
 import pickle
+import casadi
 
 # %%
 #44, 256, 256, 1
@@ -10,18 +11,18 @@ import pickle
 # %%
 def SIREN(x, params):
     weights1, weights2, weights3, mu_x, var_x, mu_t, var_t = params
-    x = (x - mu_x) / var_x
+    x = (x - casadi.DM(mu_x).reshape((1,-1))) / casadi.DM(var_x).reshape((1,-1))
 
     def forward(x, weights):
 
         weights = weights['params']
 
         for key in list(weights.keys())[:-1]:
-            x = x@weights[key]['kernel'] + weights[key]['bias']
-            x = np.sin(x)
+            x = x@casadi.DM(weights[key]['kernel']) + casadi.DM(weights[key]['bias']).reshape((1,-1))
+            x = casadi.sin(x)
 
         key = list(weights.keys())[-1]
-        x = x@weights[key]['kernel'] + weights[key]['bias']
+        x = x@casadi.DM(weights[key]['kernel']) + casadi.DM(weights[key]['bias']).reshape((1,-1))
 
 
 
@@ -35,21 +36,26 @@ def SIREN(x, params):
     for wbs in [weights1, weights2, weights3]:
         outputs.append(forward(x, wbs))
 
-    outputs = np.concatenate(outputs, -1)
-    return outputs * var_t + mu_t
+    outputs = casadi.horzcat(*outputs)
+    return outputs * casadi.DM(var_t).reshape((1,-1)) + casadi.DM(mu_t).reshape((1,-1))
 
 
 
 
 # %%
 # models = np.load('../model.pkl', allow_pickle=True)
-models = pickle.load(open('../model.pkl', 'rb'))
+models =  np.load('../numpy_model_reduced.npy', allow_pickle=True)
 
 # %%
-forward_fn = partial(SIREN, params = models)
-x = np.ones((1, 44,))
-y = forward_fn(x)
+def get_nn_fun():
+    forward_fn = partial(SIREN, params = models)
+    return forward_fn
 
-print(y)
+# x = np.ones((1, 44,))
+# test = casadi.MX.ones(1,44)
+# forward_fn(test)
+# y = forward_fn(x)
+
+# print(y)
 
 
