@@ -44,7 +44,7 @@ def SIREN(x, params):
 
 # %%
 # models = np.load('../model.pkl', allow_pickle=True)
-models =  np.load('../numpy_model_reduced.npy', allow_pickle=True)
+models =  np.load('jax_pinn_model.npy', allow_pickle=True)
 
 # %%
 def get_nn_fun():
