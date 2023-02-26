@@ -48,7 +48,7 @@ def get_linear_ode(A, BT, BH, hH, DE, DH, u_times, times):
 cols, data_pd = process_data("bld1.csv")
 data = data_pd.to_numpy()
 
-idx_start = 48000
+idx_start = 0
 
 x_data = data[idx_start:, [10, 14, 16]].T
 u_data = np.concatenate((data[:, [0, 4, 3, 6]], np.zeros((data.shape[0],2)),  data[:, 7].reshape((-1,1)), np.zeros((data.shape[0],2)),  (data[:, 8] - data[:,9]).reshape((-1, 1)), np.zeros((data.shape[0],2))), 1).T

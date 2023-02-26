@@ -86,7 +86,7 @@ odefun = get_linear_ode(A, BT, BH, hH, DE, DH)
 
 # u_dim = (outside temp + ground temp) + solar radiation + humans per room + electric heat per room + hvac per room
 u_dim = 2+1+n_rooms+n_rooms+n_rooms
-dt = 10
+dt = 10*60
 # FRK4 = discretizeODE(odefun, n_rooms, u_dim, dt) 
 
 x = opt.variable(n_rooms, n_data)
