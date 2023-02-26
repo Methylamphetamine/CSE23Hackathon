@@ -29,7 +29,7 @@ def ComputeOptimalControl(w=0.9999,delta_temp=0,theta_initial=[11,12,13],selecte
     print(cols)
 
     #idx_start = random.sample(range(4320),1)[0] + (selected_month-1) * 4320 
-    idx_start = 0
+    idx_start = 4000
 
     x_data = data[idx_start:, [10, 14, 16]].T
     u_data = np.concatenate((data[:, [0, 4, 3, 6]], np.zeros((data.shape[0],2)),  data[:, 7].reshape((-1,1)), np.zeros((data.shape[0],2)),  (data[:, 8] - data[:,9]).reshape((-1, 1)), np.zeros((data.shape[0],2))), 1).T
