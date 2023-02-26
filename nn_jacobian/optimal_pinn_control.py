@@ -12,7 +12,7 @@ from rkHandler import discretizeODE, rk_step
 from process_data import process_data
 from jax_nn import get_nn_fun
 
-n_horizon = 40
+n_horizon = 10
 w = 0.1
 delta_temp = 1
 ocp = casadi.Opti()
@@ -59,7 +59,7 @@ odefun = get_linear_ode(A, BT, BH, hH, DE, DH)
 cols, data_pd = process_data("bld1.csv")
 data = data_pd.to_numpy()
 
-idx_start = 0
+idx_start = 8000
 
 x_data = data[idx_start:, [10, 12, 14]].T
 u_data = np.concatenate((data[:, [0, 3, 4, 5, 6, 7]], (data[:, 8] - data[:, 9]).reshape((-1,1))), 1).T
@@ -77,18 +77,18 @@ onestep = get_nn_fun()
 x0 = ocp.parameter(3,1)
 xf = ocp.parameter(3,1)
 xh = ocp.variable(3, n_horizon)
-# ocp.subject_to(ocp.bounded(-delta_temp, xf[0]-xh[0,-1], delta_temp))
+ocp.subject_to(ocp.bounded(-delta_temp, xf[0]-xh[0,-1], delta_temp))
 
 x = casadi.horzcat(x0, xh)
 u = ocp.variable(1, n_horizon)
 
-ocp.subject_to(ocp.bounded(-5000, u, 5000))
+ocp.subject_to(ocp.bounded(-6000, u, 6000))
 
 for i in range(n_horizon):
-    inputs = casadi.horzcat(u_data[0:6, i].reshape((1,-1)), u[i].reshape((1,-1)), x_data[:, i].reshape((1,-1)))
     u_in = casadi.vertcat(u_data_lin[:-3,i].reshape((-1,1)), u[i].reshape((-1,1)), casadi.MX.zeros(2,1))
     x_pred = rk_step( odefun, i*600, x[:, i].reshape((-1,1)), u_in, dt)
-    ocp.subject_to( x[:, i+1] == x_pred + onestep(inputs).T )
+    inputs = casadi.horzcat(u_data[0:6, i].reshape((1,-1)), u[i].reshape((1,-1)), x_data[:, i].reshape((1,-1)), x_pred.T)
+    ocp.subject_to( x[:, i+1] == onestep(inputs).T )
 
 ocp.solver('ipopt')
 ocp.set_value(x0, x_data[:,0])
