@@ -13,7 +13,7 @@ from process_data import process_data
 from jax_nn import get_nn_fun
 
 n_horizon = 10
-w = 0.1
+w = 1.
 delta_temp = 1
 ocp = casadi.Opti()
 
@@ -99,4 +99,7 @@ J2 = u.reshape((1,-1))@u.reshape((-1,1))
 ocp.minimize(J1*w+J2*(1-w))
 sol = ocp.solve()
 
+plt.figure()
 plt.plot(sol.value(u))
+plt.figure()
+plt.plot(sol.value(x).T)
